@@ -1,6 +1,8 @@
 import styled from "styled-components";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
-const countries = [
+const testCountries = [
     {
         flag: "https://flagcdn.com/w320/bg.png",
         name: "Bulgaria",
@@ -76,6 +78,34 @@ const countries = [
 ];
 
 const Search = ({ className }) => {
+    let [countries, setCountries] = useState(testCountries);
+
+    useEffect(() => {
+        axios
+            .request({
+                method: "get",
+                url: "https://restcountries.com/v3.1/all",
+            })
+            .then((response) => {
+                const result = [];
+                response.data.forEach((country) => {
+                    result.push({
+                        flag: country.flags.png,
+                        name: country.name.common,
+                        population: country.population,
+                        region: country.region,
+                        capital: country.capital,
+                        cioc: country.cioc,
+                    });
+                });
+                setCountries(result);
+            })
+            .catch((response) => {
+                console.log("Error! Could not fetch countries!");
+                console.log(response);
+            });
+    }, []);
+
     return (
         <div className={className}>
             <div className="controls">
@@ -158,5 +188,8 @@ export default styled(Search)`
     .countries--item img {
         width: 100%;
         border-radius: 0.25rem 0.25rem 0 0;
+        object-fit: cover;
+        object-position: center center;
+        aspect-ratio: 5 / 3;
     }
 `;
